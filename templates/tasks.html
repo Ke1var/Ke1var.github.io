@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Все задачи
+{% endblock %}
+
+{% block content %}
+<br><h1>Все задачи</h1>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link {% if not active_tab or active_tab == 'all' %}active{% endif %}" 
+           href="{{ url_for('tasks') }}">Все задачи</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'important' %}active{% endif %}" 
+           href="{{ url_for('important_tasks') }}">Важные</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'daily' %}active{% endif %}" 
+           href="{{ url_for('daily_tasks') }}">Повседневные</a>
+    </li>
+</ul>
+
+<br>
+
+{% for post in tasks %}
+    <div class="col d-flex align-items-start pt-3 mt-3 
+        {% if post.completed %}bg-success bg-opacity-10 border border-success rounded{% endif %}">
+        <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+            <svg class="bi" width="1em" height="1em" aria-hidden="true"><use xlink:href="#tools"></use></svg>
+        </div> 
+        <div class="flex-grow-1">
+            <h3 class="fs-2 text-body-emphasis {% if post.completed %}text-decoration-line-through text-muted{% endif %}">
+                {{ post.title }}
+                {% if post.task_type == 'important' %}
+                    <span class="badge bg-danger">Важная</span>
+                {% elif post.task_type == 'daily' %}
+                    <span class="badge bg-secondary">Повседневная</span>
+                {% endif %}
+            </h3>
+            <p class="{% if post.completed %}text-muted{% endif %}">{{ post.text }}</p>
+            
+    {% if post.due_date %}
+        <p class="text-muted small">
+            <strong>Срок выполнения:</strong> 
+            {{ post.due_date.strftime('%d.%m.%Y %H:%M') }}
+            
+            {% if post.completed and post.completed_at %}
+                {% if post.completed_at <= post.due_date %}
+                    <span class="badge bg-success">Выполнено вовремя</span>
+                {% else %}
+                    <span class="-badge bg-warning text-dark">Выполнено не вовремя</span>
+                {% endif %}
+            {% elif not post.completed and post.due_date < now() %}
+                <span class="badge bg-danger">Просрочено</span>
+            {% elif not post.completed and post.due_date >= now() %}
+                <span class="badge bg-info">В процессе</span>
+            {% endif %}
+        </p>
+    {% endif %}
+            
+            <div class="btn-group">
+                <a href="#" class="btn btn-primary">Больше</a>
+                
+                {% if not post.completed %}
+                    <a href="/complete/{{ post.id }}" class="btn btn-success">
+                        ✅ Выполнено
+                    </a>
+                {% else %}
+                    <a href="/uncomplete/{{ post.id }}" class="btn btn-warning">
+                        ↩️ Вернуть
+                    </a>
+                {% endif %}
+                
+                <a href="/delete/{{ post.id }}" class="btn btn-danger">
+                    🗑️ Удалить
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        {% if active_tab == 'important' %}
+            Нет важных задач
+        {% elif active_tab == 'daily' %}
+            Нет повседневных задач
+        {% else %}
+            Нет задач
+        {% endif %}
+    </div>
+{% endfor %}
+
+{% endblock %}

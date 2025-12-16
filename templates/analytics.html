@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Аналитика{% endblock %}
+
+{% block content %}
+<br>
+<h1>{{ period_label }}</h1>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'week' %}active{% endif %}" href="{{ url_for('analytics_week') }}">Текущая неделя</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'month' %}active{% endif %}" href="{{ url_for('analytics_month') }}">Текущий месяц</a>
+    </li>
+</ul>
+
+<br><br>
+
+<canvas id="analyticsChart" height="100"></canvas>
+
+<br><br>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>✅ Выполненные задачи: <strong>{{ stats.total_completed }}</strong></h4>
+        <ul>
+            <li><strong>Выполнены вовремя:</strong> {{ stats.completed_on_time }}</li>
+            <li><strong>Выполнены не вовремя:</strong> {{ stats.completed_late }}</li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h4>⏳ Невыполненные задачи: <strong>{{ stats.total_uncompleted }}</strong></h4>
+        <ul>
+            <li><strong>Можно выполнить вовремя:</strong> {{ stats.pending }}</li>
+            <li><strong>Просроченные:</strong> {{ stats.missed }}</li>
+        </ul>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels | tojson }},
+            datasets: {{ chart_data.datasets | tojson }}
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { stacked: true },
+                y: { 
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+</script>
+<br>
+<p><strong>ВАЖНО: </strong>Аналитика добавляет задачу в график не на момент нажатия кнопки выполнено, а на момент окончания срока задачи</p>
+
+{% endblock %}

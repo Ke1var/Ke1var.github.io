@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Добавление задачи
+{% endblock %}
+
+{% block content %}
+<br><h1>Добавление задачи</h1>
+
+<form method="post" class="form-control">
+    <input type="text" name="title" placeholder="Введите название задачи" class="form-control" required> <br>
+    <input type="text" name="text" placeholder="Введите описание задачи" class="form-control"> <br>
+    <label for="due_date">Дата и время выполнения:</label>
+    <input type="datetime-local" name="due_date" id="due_date" class="form-control"> <br>
+    
+    <label for="task_type">Тип задачи:</label>
+    <select name="task_type" id="task_type" class="form-control">
+        <option value="important">Важная</option>
+        <option value="daily">Повседневная</option>
+    </select> <br>
+    
+    <button class="btn btn-success" type="submit">Добавить задачу</button>
+</form>
+{% endblock %}
